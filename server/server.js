@@ -1,38 +1,22 @@
 require('./config/config.js')
 const express = require('express');
+const mongoose = require('mongoose');
 var bodyParser = require('body-parser')
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-app.get('/usuario', function (req, res) {
-    res.json('get usuario')
-})
+app.use( require('./routes/user.js'))
 
-app.post('/usuario', function (req, res) {
-    let body = req.body
-    if (body.nombre == undefined) {
-        res.status(400).json({
-            ok: false,
-            mensaje: 'El nombre es necesario'
-        })
-    } else {
-         res.json({
-             usuario: body
-         })
-    }
-})
-
-app.put('/usuario/:id', function (req, res) {
-    let id = req.params.id
-    res.json({
-        id
-    })
-})
-
-app.delete('/usuario', function (req, res) {
-    res.json('delete usuario')
+// BBDD Online
+mongoose.connect(process.env.URLDB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+}, (err, res) => {
+    if (err) throw err
+    console.log('BBDD online!');
 })
 
 app.listen(process.env.PORT, () => {
