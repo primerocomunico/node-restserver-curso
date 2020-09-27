@@ -3,12 +3,22 @@ const bcrypt = require('bcrypt')
 const _ = require('underscore')
 
 const User = require('../models/user')
+
+// Importar middlewares personalizados
+const {verifyToken, verifyAdmin} = require('../middlewares/auth')
+
 const app = express();
 
-app.get('/usuarios', function (req, res) {
+app.get('/usuarios', verifyToken, function (req, res) {
+
+    /*return res.json({
+        user: req.user,
+        nombre: req.user.nombre,
+        email: req.user.email
+    })*/
 
     // Controlar si el user es status true para ser mostrado
-    // Utilizar {status: true} en .find y .count
+    // Utilizar {status: true} en .find y .countDocuments
 
     // Paginación de usuarios
     // http://localhost:3000/usuarios?limit=5&from=5
@@ -32,7 +42,7 @@ app.get('/usuarios', function (req, res) {
             }
 
             // Retornar el número total de registros
-            User.count({
+            User.countDocuments({
                 status: true
             }, (err, counter) => {
                 if (err) {
@@ -51,7 +61,7 @@ app.get('/usuarios', function (req, res) {
         })
 })
 
-app.post('/usuario', function (req, res) {
+app.post('/usuario', [verifyToken, verifyAdmin], function (req, res) {
     let body = req.body
 
     // Crear estructura de usuario, basado en Schema de ../models/user.js
@@ -83,7 +93,7 @@ app.post('/usuario', function (req, res) {
 
 })
 
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id', [verifyToken, verifyAdmin], function (req, res) {
     let id = req.params.id
 
     // _.pick permite elegir aquellos campos que si podrían ser modificados
@@ -110,7 +120,7 @@ app.put('/usuario/:id', function (req, res) {
 })
 
 // Cambiar status: false para que no sea visualizado desde el front
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verifyToken, verifyAdmin], function (req, res) {
 
     let id = req.params.id
     let changeStatus = {

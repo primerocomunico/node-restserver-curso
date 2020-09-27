@@ -7,7 +7,8 @@ const app = express();
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-app.use( require('./routes/user.js'))
+// Definición de rutas
+app.use( require('./routes/index'))
 
 // BBDD Online
 mongoose.connect(process.env.URLDB, {
@@ -19,6 +20,7 @@ mongoose.connect(process.env.URLDB, {
     console.log('BBDD online!');
 })
 
+// Activar puerto server
 app.listen(process.env.PORT, () => {
     console.log('Escuchando puerto 3000');
 })
