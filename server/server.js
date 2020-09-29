@@ -1,11 +1,15 @@
 require('./config/config.js')
 const express = require('express');
 const mongoose = require('mongoose');
-var bodyParser = require('body-parser')
+const path = require('path')
+var bodyParser = require('body-parser');
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
+
+// Habilitar public
+app.use(express.static(path.resolve(__dirname, '../server/public')))
 
 // Definición de rutas
 app.use( require('./routes/index'))

@@ -19,6 +19,9 @@ if(process.env.NODE_ENV == 'dev') {
 }
 process.env.URLDB = urlDB
 
+// GOOGLE CLIENT ID
+process.env.CLIENT_ID = process.env.CLIENT_ID || '785353821750-6spadjeftn7jt8cmln0ac68m3replpcc.apps.googleusercontent.com'
+
 // VARIABLE HEROKU MONGODB CONNECTION
 // heroku config MONGO_URI
 
