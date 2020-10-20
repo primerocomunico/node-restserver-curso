@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
 // Habilitar public
-app.use(express.static(path.resolve(__dirname, '../server/public')))
+app.use(express.static(path.resolve(__dirname, '../public')))
 
 // Definición de rutas
 app.use( require('./routes/index'))

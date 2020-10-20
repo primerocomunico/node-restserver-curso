@@ -5,8 +5,6 @@ const jwt = require('jsonwebtoken');
 let verifyToken = (req, res, next) => {
     let token = req.get('auth');
 
-    console.log(`Token: ${token}`);
-
     // Confirmar que el token es válido
     jwt.verify(token, process.env.FIRM_TOKEN, (err, decoded) => {
         if(err) {
@@ -39,6 +37,27 @@ let verifyAdmin = (req, res, next) => {
     }
 }
 
+// VERIFICAR TOKEN IMAGEN
+let verifyTokenImg = (req, res, next) => {
+    // token viene definido de la query param en la url
+    let token = req.query.token
+    
+    // Confirmar que el token es válido
+    jwt.verify(token, process.env.FIRM_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({
+                ok: false,
+                err: err
+            })
+        }
+
+        // Lo que solicita el usuario va ser igual al token decodificado
+        // Solicita el user que se ha identificado a través del token
+        req.user = decoded.user;
+        next();
+    })
+}
+
 module.exports = {
-    verifyToken, verifyAdmin
+    verifyToken, verifyAdmin, verifyTokenImg
 }
