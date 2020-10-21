@@ -8,16 +8,16 @@
 
 ## User endpoints
 
-**FUNCTION: Create user**
-**METHOD:** POST
-**ENDPOINT:** /user
-**HEADERS:** None
+**FUNCTION: Create user**  
+**METHOD:** POST  
+**ENDPOINT:** /user  
+**HEADERS:** None  
 **BODY:** `{
     "nombre": "Patricio",
     "email": "patricio@mail.com",
     "password": "1234",
     "role": "ADMIN_ROLE"
-}`
+}`  
 **RESPONSE:** `{ "ok": true,
     "user": {
         "role": "ADMIN_ROLE",
@@ -27,7 +27,7 @@
         "nombre": "Patricio",
         "email": "patricio@mail.com",
         "__v": 0
-    } }`
+    } }`  
 **ANNOTATIONS:** role is optional and only accept ADMIN_ROLE if you need to create a super user
 
 **FUNCTION: Login user**
