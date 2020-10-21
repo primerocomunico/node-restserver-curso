@@ -2,6 +2,8 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express()
 
+const {verifyToken} = require('../middlewares/auth')
+
 const fs = require('fs')
 const path = require('path')
 
@@ -15,7 +17,7 @@ app.use(fileUpload({
 }));
 
 // El argumento :type nos permite definir si es un archivo de product o de user
-app.put('/upload/:type/:id', (req, res) => {
+app.put('/upload/:type/:id', verifyToken, (req, res) => {
 
     let type = req.params.type
     let id = req.params.id

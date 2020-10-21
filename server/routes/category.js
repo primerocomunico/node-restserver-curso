@@ -8,7 +8,7 @@ let {verifyToken, verifyAdmin} = require('../middlewares/auth')
 let app = express()
 
 // GET - Mostrar todas las categorías
-app.get('/category', verifyToken, (req, res) => {
+app.get('/categories', verifyToken, (req, res) => {
     Category.find({})
     // .populate() nos permite identificar a través del objectID la coincidencia en otras tablas con el mismo objectID y así traer información complementaria de otras tablas
     .populate('user', 'nombre email google')
@@ -32,7 +32,9 @@ app.get('/category', verifyToken, (req, res) => {
 app.get('/category/:id', verifyToken, (req, res) => {
     let id = req.params.id
 
-    Category.findById(id, (err, categoryDB) => {
+    Category.findById(id)
+    .populate('user', 'nombre')
+    .exec((err, categoryDB) => {
         if (err) {
             return res.status(500).json({
                 ok: false,

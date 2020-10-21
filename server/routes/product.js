@@ -3,7 +3,10 @@ const express = require('express');
 let Product = require('../models/product')
 
 // // Importar middlewares personalizados
-let {verifyToken, verifyAdmin} = require('../middlewares/auth')
+let {
+    verifyToken,
+    verifyAdmin
+} = require('../middlewares/auth')
 
 let app = express()
 
@@ -17,23 +20,39 @@ app.get('/products', verifyToken, (req, res) => {
     limit = Number(limit)
 
     // Solo mostrar los productos disponibles
-    Product.find({available: true})
-    .skip(from)
-    .limit(limit)
-    .populate('user', 'nombre')
-    .populate('category', 'description')
-    .exec((err, products) => {
-        if (err) {
-            return res.status(400).json({
-                ok: false,
-                err
-            })
-        }
-        res.json({
-            ok: true,
-            products
+    Product.find({
+            available: true
         })
-    })
+        .skip(from)
+        .limit(limit)
+        .populate('user', 'nombre')
+        .populate('category', 'description')
+        .exec((err, products) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                })
+            }
+
+            // Retornar el número total de registros
+            Product.countDocuments({
+                available: true
+            }, (err, counter) => {
+                if (err) {
+                    return res.status(400).json({
+                        ok: false,
+                        err
+                    })
+                }
+
+                res.json({
+                    ok: true,
+                    products: products,
+                    counter: counter
+                })
+            })
+        })
 })
 
 // GET - Mostrar un único producto by id
@@ -41,31 +60,31 @@ app.get('/product/:id', verifyToken, (req, res) => {
     let id = req.params.id
 
     Product.findById(id)
-    .populate('user', 'nombre')
-    .populate('category', 'description')
-    .exec((err, productDB) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                err: {
-                    message: 'Hay un error con el ID del producto',
-                    err
-                }
+        .populate('user', 'nombre')
+        .populate('category', 'description')
+        .exec((err, productDB) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: {
+                        message: 'Hay un error con el ID del producto',
+                        err
+                    }
+                })
+            }
+            if (!productDB) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: 'El producto no existe'
+                    }
+                })
+            }
+            res.json({
+                ok: true,
+                product: productDB
             })
-        }
-        if (!productDB) {
-            return res.status(400).json({
-                ok: false,
-                err: {
-                    message: 'El producto no existe'
-                }
-            })
-        }
-        res.json({
-            ok: true,
-            product: productDB
         })
-    })
 })
 
 // GET - Búsqueda de productos específicos
@@ -75,26 +94,29 @@ app.get('/product/search/:title', verifyToken, (req, res) => {
     // 'i' Es para eliminar la insensibilidad entre mayúsculas y minúsculas
     let regex = new RegExp(title, 'i')
 
-    Product.find({name: regex})
-    .populate('category', 'description')
-    .exec( (err, products) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                err
-            })
-        }
-        if (!products) {
-            return res.status(400).json({
-                ok: false,
-                err
-            })
-        }
-        res.json({
-            ok: true,
-            products: products
+    Product.find({
+            name: regex
         })
-    })
+        .populate('category', 'description')
+        .populate('user', 'nombre')
+        .exec((err, products) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err
+                })
+            }
+            if (!products) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                })
+            }
+            res.json({
+                ok: true,
+                products: products
+            })
+        })
 })
 
 // POST - Crear un nuevo producto
@@ -125,10 +147,34 @@ app.post('/product', verifyToken, (req, res) => {
                 err
             })
         }
-         res.json({
-             ok: true,
-             product: productDB
-         })
+
+        // Identificamos el producto salvado, para que después la respuesta muestre el nombre del usuario y el nombre de la categoría
+        Product.findById(productDB._id)
+            .populate('user', 'nombre')
+            .populate('category', 'description')
+            .exec((err, productDB) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        err: {
+                            message: 'Hay un error con el ID del producto',
+                            err
+                        }
+                    })
+                }
+                if (!productDB) {
+                    return res.status(400).json({
+                        ok: false,
+                        err: {
+                            message: 'El producto no existe'
+                        }
+                    })
+                }
+                res.json({
+                    ok: true,
+                    product: productDB
+                })
+            })
     })
 })
 
@@ -145,28 +191,34 @@ app.put('/product/:id', verifyToken, (req, res) => {
         category: body.category
     }
 
-     // {new: true} es un parámetro que devuelve el obj modificado
-     // {runValidators: true} es un parámetro que corre todas las validadeciones definidas en el Schema
-     Product.findByIdAndUpdate(id, editProduct, {new: true, runValidators: true}, (err, productDB) => {
-         if (err) {
-             return res.status(500).json({
-                 ok: false,
-                 err
-             })
-         }
-         if (!productDB) {
-             return res.status(400).json({
-                 ok: false,
-                 err: {
-                     message: `El producto ${editProduct.name} no está disponible`
-                 }
-             })
-         }
-         res.json({
-             ok: true,
-             product: productDB
-         })
-     })
+    // {new: true} es un parámetro que devuelve el obj modificado
+    // {runValidators: true} es un parámetro que corre todas las validadeciones definidas en el Schema
+    Product.findByIdAndUpdate(id, editProduct, {
+            new: true,
+            runValidators: true
+        })
+        .populate('user', 'nombre')
+        .populate('category', 'description')
+        .exec((err, productDB) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err
+                })
+            }
+            if (!productDB) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: `El producto ${editProduct.name} no está disponible`
+                    }
+                })
+            }
+            res.json({
+                ok: true,
+                product: productDB
+            })
+        })
 })
 
 // DELETE - Borrar un producto, solo por el usuario ADMIN_ROLE

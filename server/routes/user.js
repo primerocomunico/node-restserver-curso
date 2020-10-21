@@ -9,7 +9,7 @@ const {verifyToken, verifyAdmin} = require('../middlewares/auth')
 
 const app = express();
 
-app.get('/usuarios', verifyToken, function (req, res) {
+app.get('/users', verifyToken, function (req, res) {
 
     /*return res.json({
         user: req.user,
@@ -61,7 +61,7 @@ app.get('/usuarios', verifyToken, function (req, res) {
         })
 })
 
-app.post('/usuario', [verifyToken, verifyAdmin], function (req, res) {
+app.post('/user', function (req, res) {
     let body = req.body
 
     // Crear estructura de usuario, basado en Schema de ../models/user.js
@@ -93,7 +93,7 @@ app.post('/usuario', [verifyToken, verifyAdmin], function (req, res) {
 
 })
 
-app.put('/usuario/:id', [verifyToken, verifyAdmin], function (req, res) {
+app.put('/user/:id', [verifyToken, verifyAdmin], function (req, res) {
     let id = req.params.id
 
     // _.pick permite elegir aquellos campos que si podrían ser modificados
@@ -120,7 +120,7 @@ app.put('/usuario/:id', [verifyToken, verifyAdmin], function (req, res) {
 })
 
 // Cambiar status: false para que no sea visualizado desde el front
-app.delete('/usuario/:id', [verifyToken, verifyAdmin], function (req, res) {
+app.delete('/user/:id', [verifyToken, verifyAdmin], function (req, res) {
 
     let id = req.params.id
     let changeStatus = {
