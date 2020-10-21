@@ -64,7 +64,7 @@
 **FUNCTION: Edit user**  
 **METHOD:** PUT  
 **ENDPOINT:** /usuario/:id  
-**HEADERS:** auth: `place the token here`
+**HEADERS:** auth: `place the token here`  
 **BODY:** `You can change: 'nombre', 'email', 'img', 'role', 'status'`  
 **RESPONSE:** `{ "ok": true,
     "user": {
